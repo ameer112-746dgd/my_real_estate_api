@@ -1,12 +1,3 @@
-# from rest_framework import viewsets
-# from .models import ListingUser
-# from .serializers import ListingUserSerializer
-
-# class ListingUserViewSet(viewsets.ModelViewSet):
-#     queryset = ListingUser.objects.all()
-#     serializer_class = ListingUserSerializer
-
-
 from rest_framework import viewsets, status
 from rest_framework.response import Response
 from .models import ListingUser

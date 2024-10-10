@@ -1,24 +1,3 @@
-# from django.shortcuts import render
-
-# # Create your views here.
-# from rest_framework import generics
-# from .models import Blog
-# from .serializers import BlogSerializer
-
-# class BlogListCreateView(generics.ListCreateAPIView):
-#     queryset = Blog.objects.all()
-#     serializer_class = BlogSerializer
-
-
-# from rest_framework import viewsets
-# from .models import Blog
-# from .serializers import BlogSerializer
-
-# class BlogViewSet(viewsets.ModelViewSet):
-#     queryset = Blog.objects.all()
-#     serializer_class = BlogSerializer
-
-
 from rest_framework import viewsets, status
 from rest_framework.response import Response
 from .models import Blog
