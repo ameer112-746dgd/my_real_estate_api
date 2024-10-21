@@ -1,12 +1,15 @@
-
 from rest_framework import viewsets, status
 from rest_framework.response import Response
+# from rest_framework.authentication import TokenAuthentication
+from rest_framework.permissions import IsAuthenticated
 from .models import Property
 from .serializers import PropertySerializer
 
 class PropertyViewSet(viewsets.ModelViewSet):
     queryset = Property.objects.all()
     serializer_class = PropertySerializer
+    # authentication_classes = [TokenAuthentication]  # Token authentication
+    permission_classes = [IsAuthenticated]  # Users must be authenticated to access
 
     def list(self, request, *args, **kwargs):
         queryset = self.get_queryset()

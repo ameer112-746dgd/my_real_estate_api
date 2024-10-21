@@ -1,11 +1,13 @@
 from rest_framework import viewsets, status
 from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
 from .models import ListingUser
 from .serializers import ListingUserSerializer
 
 class ListingUserViewSet(viewsets.ModelViewSet):
     queryset = ListingUser.objects.all()
     serializer_class = ListingUserSerializer
+    permission_classes = [IsAuthenticated]
 
     def create(self, request, *args, **kwargs):
         response = super().create(request, *args, **kwargs)
