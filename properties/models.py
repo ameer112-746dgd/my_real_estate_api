@@ -1,10 +1,8 @@
 from django.db import models
-
-# Create your models here.
-from django.db import models
+from django.conf import settings
 
 class Property(models.Model):
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=255)
     image = models.ImageField(upload_to='properties/')
     address = models.CharField(max_length=255)
     description = models.TextField()
@@ -13,6 +11,14 @@ class Property(models.Model):
     noRooms = models.IntegerField()
     noBath = models.IntegerField()
     size = models.FloatField()  # Size in square meters
+
+    # to link property to the user who created it
+    # created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
+    
+    
+    class Meta:
+        verbose_name_plural = "Properties"  # to set correct plural name
 
     def __str__(self):
         return self.name

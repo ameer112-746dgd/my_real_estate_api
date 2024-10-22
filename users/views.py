@@ -1,3 +1,5 @@
+from .models import User
+from .serializers import UserSerializer
 from django.contrib.auth import authenticate
 from django.shortcuts import get_object_or_404
 from rest_framework import permissions, status, viewsets
@@ -5,14 +7,10 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import AccessToken
 
-from .models import User
-from .serializers import UserSerializer
-
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-
 
 class UserRegistrationView(APIView):
     permission_classes = [permissions.AllowAny]  # Allow anyone to register
@@ -28,18 +26,21 @@ class UserRegistrationView(APIView):
 class UserLoginView(APIView):
     permission_classes = [permissions.AllowAny]  # Allow anyone to login
 
+class UserLoginView(APIView):
+    permission_classes = [permissions.AllowAny]  # Allow anyone to login
+
     def post(self, request):
-        username = request.data.get('username')
-        password = request.data.get('password')
+        email = request.data.get('email')  # Get the email from the request
+        password = request.data.get('password')  # Get the password from the request
         
-        user = authenticate(username=username, password=password)
+        # Authenticate using email and password
+        user = authenticate(email=email, password=password)
 
         if user is not None:
             access_token = AccessToken.for_user(user)
             return Response({"token": str(access_token)}, status=status.HTTP_200_OK)
         
         return Response({"error": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
-
 
 class UserDetailView(APIView):
     permission_classes = [permissions.IsAuthenticated]  # Only authenticated users can access
@@ -61,7 +62,6 @@ class UserDetailView(APIView):
         user = get_object_or_404(User, pk=pk)
         user.delete()
         return Response({"message": "User deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
-
 
 class UserListView(APIView):
     permission_classes = [permissions.IsAuthenticated]  # Only authenticated users can access

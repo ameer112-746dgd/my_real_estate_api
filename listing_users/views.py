@@ -24,10 +24,16 @@ class ListingUserViewSet(viewsets.ModelViewSet):
         }, status=status.HTTP_200_OK)
 
     def destroy(self, request, *args, **kwargs):
-        super().destroy(request, *args, **kwargs)
-        return Response({
-            'message': 'Listing User deleted successfully!'
-        }, status=status.HTTP_204_NO_CONTENT)
+        # Check if user is an admin
+        if request.user.is_active and request.user.role == 'admin':
+            super().destroy(request, *args, **kwargs)
+            return Response({
+                'message': 'Listing User deleted successfully!'
+            }, status=status.HTTP_204_NO_CONTENT)
+        else:
+            return Response({
+                'message': 'You do not have permission to delete users.'
+            }, status=status.HTTP_403_FORBIDDEN)
 
     def list(self, request, *args, **kwargs):
         response = super().list(request, *args, **kwargs)
