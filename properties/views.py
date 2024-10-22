@@ -1,16 +1,18 @@
-from rest_framework import viewsets, status
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
-from .models import Property
-from .serializers import PropertySerializer
 import os
+from .models import Property
+from .permissions import IsAdminUserRole
+from rest_framework import viewsets, status
+from .serializers import PropertySerializer
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
 
 class PropertyViewSet(viewsets.ModelViewSet):
     queryset = Property.objects.all()
     serializer_class = PropertySerializer
-    permission_classes = [IsAuthenticated]  # Users must be authenticated to access
+    permission_classes = [IsAuthenticated]  # Ensure users are authenticated to interact
 
     def perform_create(self, serializer):
+        # To set the user who created the property
         serializer.save(created_by=self.request.user)
 
     def list(self, request, *args, **kwargs):
@@ -52,21 +54,20 @@ class PropertyViewSet(viewsets.ModelViewSet):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def destroy(self, request, *args, **kwargs):
-        # Check if the user is active and has the 'admin' role
-        if request.user.is_active and request.user.role.lower() == 'admin':  # Use lower() to match the role
-            property_instance = self.get_object()
-            image_path = property_instance.image.path  # Get the path of the image
-            
-            # Debugging info
-            print(f"Deleting property: {property_instance.id}, Image Path: {image_path}")
-            
-            property_instance.delete()  # Delete the property
-            if os.path.exists(image_path):  # Check if the image file exists
-                os.remove(image_path)  # Delete the image file
-                print("Image deleted successfully.")
-            else:
-                print("Image not found, deletion skipped.")
-            
-            return Response({'message': 'Property deleted successfully!'}, status=status.HTTP_204_NO_CONTENT)
+        # Apply custom permission to ensure only admins can delete properties
+        self.permission_classes = [IsAdminUserRole]
+        self.check_permissions(request)
+
+        property_instance = self.get_object()  # To get the property instance to be deleted
+        image_path = property_instance.image.path  # To get the path of the associated image
+
+        property_instance.delete()  # Delete the property instance
+
+        # Check if the image file exists and delete it
+        if os.path.exists(image_path):
+            os.remove(image_path)
+            print("Image deleted successfully.")
         else:
-            return Response({'message': 'You do not have permission to delete properties.'}, status=status.HTTP_403_FORBIDDEN)
+            print("Image not found, deletion skipped.")
+        
+        return Response({'message': 'Property deleted successfully!'}, status=status.HTTP_204_NO_CONTENT)

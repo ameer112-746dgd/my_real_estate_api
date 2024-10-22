@@ -4,13 +4,13 @@ from .models import User
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['email', 'username', 'first_name', 'last_name', 'role', 'password']
+        fields = ['id','email', 'username', 'first_name', 'last_name', 'role', 'password']
         extra_kwargs = {
             'password': {'write_only': True}
         }
 
     def create(self, validated_data):
-        # Normalize role to lowercase
+        # To normalize role to lowercase
         if 'role' in validated_data:
             validated_data['role'] = validated_data['role'].lower()
         user = User(**validated_data)
@@ -19,7 +19,7 @@ class UserSerializer(serializers.ModelSerializer):
         return user
 
     def validate_role(self, value):
-        # Ensure the role is valid (case insensitive)
+        # To ensure the role is valid (case insensitive)
         valid_roles = ['admin', 'user']
         if value.lower() not in valid_roles:
             raise serializers.ValidationError(f'"{value}" is not a valid choice.')

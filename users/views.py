@@ -6,6 +6,7 @@ from rest_framework import permissions, status, viewsets
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import AccessToken
+from .permissions import IsAdminUser
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -20,11 +21,7 @@ class UserRegistrationView(APIView):
         if serializer.is_valid():
             serializer.save()
             return Response({"message": "User created successfully"}, status=status.HTTP_201_CREATED)
-        
         return Response({"errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
-
-class UserLoginView(APIView):
-    permission_classes = [permissions.AllowAny]  # Allow anyone to login
 
 class UserLoginView(APIView):
     permission_classes = [permissions.AllowAny]  # Allow anyone to login
@@ -39,7 +36,6 @@ class UserLoginView(APIView):
         if user is not None:
             access_token = AccessToken.for_user(user)
             return Response({"token": str(access_token)}, status=status.HTTP_200_OK)
-        
         return Response({"error": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
 
 class UserDetailView(APIView):
@@ -59,7 +55,9 @@ class UserDetailView(APIView):
         return Response({"errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, pk):
+        self.permission_classes = [IsAdminUser]
         user = get_object_or_404(User, pk=pk)
+        self.check_permissions(request)
         user.delete()
         return Response({"message": "User deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
 
@@ -70,3 +68,4 @@ class UserListView(APIView):
         users = User.objects.all()  # Retrieve all users
         serializer = UserSerializer(users, many=True)  # Serialize the user data
         return Response(serializer.data)
+
