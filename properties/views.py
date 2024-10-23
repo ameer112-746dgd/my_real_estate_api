@@ -24,6 +24,10 @@ class PropertyViewSet(viewsets.ModelViewSet):
         })
 
     def create(self, request, *args, **kwargs):
+        
+        self.permission_classes = [IsAdminUserRole]
+        self.check_permissions(request)
+        
         serializer = self.get_serializer(data=request.data)
         if serializer.is_valid():
             property_instance = serializer.save()
@@ -42,6 +46,10 @@ class PropertyViewSet(viewsets.ModelViewSet):
         })
 
     def update(self, request, *args, **kwargs):
+        
+        self.permission_classes = [IsAdminUserRole]
+        self.check_permissions(request)
+        
         partial = kwargs.pop('partial', False)
         instance = self.get_object()
         serializer = self.get_serializer(instance, data=request.data, partial=partial)
